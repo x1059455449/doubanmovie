@@ -1,8 +1,8 @@
 # 移动端项目豆瓣电影
 
+效果预览：[点击查看](https://x1059455449.github.io/doubanmovie/index.html)
 
-
-##API
+## API
 
 > 获取 Top250的电影
 
