@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_440195_fw8hsnrso53wstt9.css">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <!-- 如果效果中图片展示不出来，可在 html 添加 meta -->
+    <meta name="referrer" content="never">
+    <title>豆瓣电影</title>
+    <style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    a {
+        text-decoration: none;
+        color: #333;
+    }
+    html,body,main {
+        height: 100%;
+        position: relative;
+    }
+    body {
+        font-size: 12px;
+        line-height: 1.2;
+    }
+    main>section {
+        height: calc(100% - 45px);
+        padding: 10px;
+        background: #fff;
+        overflow: scroll;
+        -webkit-overflow-scrolling: touch; /*ios 上增加弹性*/
+    }
+    main>section {
+        display: none;
+    }
+    main section:first-child {
+        display: block;
+    }
+    .item {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+        padding-top: 10px;
+    }
+    .item>a {
+        display: block;
+        display: flex;
+    }
+    .item .cover,
+    .item .cover img {
+        width:70px;
+    }
+    .item .detail {
+        float: 1;
+        padding-left: 10px;
+    }
+    .item .detail h2 {
+        font-size: 16px;
+    }
+    .item .detail .extra {
+        color: #999;
+        margin-top: 4px;
+    }
+    .item .detail .score {
+        color: #ff5722;
+    }
+    .loading {
+      text-align: center;
+      padding-top: 10px;
+      display: none;
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg);  }
+    }
+    #search {
+        height: calc(100% -45px);
+    }
+    section .search-area {
+        position: relative;
+        color: #333;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+    section .search-area input {
+        width: calc(100% - 50px);
+        padding: 8px;
+        background-color: #eee;
+        border: none;
+        box-shadow: none;
+        outline: none;
+        border-radius: 5px;
+    }
+    section .search-area .button {
+        position: absolute;
+        right: 0;
+        padding: 8px 10px;
+        background: #ff5722;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .loading .iconfont {
+        display: inline-block;
+        /* 此处写block也可以 */
+        animation: 1s rotate linear infinite;
+    }
+    footer {
+      position: absolute;
+      bottom: 0;
+      height: 45px;
+      width: 100%;
+      border-top: 1px solid #ccc;
+      background-color: #fff;
+      display: flex;
+    }
+    footer>div {
+      flex: 1;
+      font-size: 12px;
+      text-align: center;
+      color: #666;
+      padding-top: 6px;
+    }
+    footer .active{
+      color: #FF5722;
+    }
+    footer>div>span{
+      display: block;
+    } 
+
+    
+    
+    </style>
+</head>
+<body>
+    <main>
+        <!-- 第一个页面 -->
+        <section id="top250">
+            <div class="container">
+                <!-- <div class="item">
+                    <a href="#">
+                      <div class="cover">
+                        <img src="http://img7.doubanio.com/view/movie_poster_cover/spst/public/p513344864.png" alt="">
+                      </div>
+                      <div class="detail">
+                        <h2>霸王别姬</h2>
+                        <div class="extra"><span class="score">9.3分</span> / 1000收藏</div>
+                        <div class="extra">1994 / 剧情、爱情</div>
+                        <div class="extra">导演: 张艺谋</div>
+                        <div class="extra">主演: 张艺谋、张艺谋、张艺谋</div>
+                      </div>
+                    </a>
+                </div> -->
+            </div>
+            <div class="loading"><span class="iconfont icon-loading"></span></div>
+        </section>
+        <!-- 第二个页面 -->
+        <section id="beimei">
+            <div class="container">测试</div>
+            <div class="loading"><span class="iconfont icon-loading"></span></div>
+        </section>
+        <!-- 第三个页面 -->
+        <section id="search">
+            <div class="search-area">
+                <input type="text" placeholder="搜索电影"><span class="button">搜索</span>
+            </div>
+            <div class="search-result">
+                    <div class="loading"><span class="iconfont icon-loading"></span></div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="active">
+            <span class="iconfont icon-paihang"></span><span>top250</span>
+        </div>
+        <div>
+            <span class="iconfont icon-beimei"></span><span>北美</span>
+        </div>
+        <div>
+            <span class="iconfont icon-search"></span><span>搜索</span>
+        </div>
+    </footer>
+    <script>
+    /*    $('footer>div').click(function () {
+        //先获取index的值,再让对应的index的值展现出来
+        var index = $(this).index()
+        //$('section').eq(index).show().siblings().hide()
+        $('section').hide().eq(index).fadeIn()
+        $(this).addClass('active').siblings().removeClass('active')
+    })
+
+    var index = 0
+    var isLoading = false
+
+    start()
+    function start() {
+        if(isLoading) return //后续不再进行
+        isLoading = true
+        $('.loading').show()
+        $.ajax({
+        //注意要加http://api.douban.com，因为要在豆瓣的域下获取，不然会跨域报错
+        //&callback=abc是存在的,则说明支持jsonp格式
+        url: 'http://api.douban.com/v2/movie/top250',
+        type: 'GET',
+        data: {
+            start: index,
+            count: 20
+        },
+        dataType: 'jsonp'
+    }).done(function (ret) {
+        console.log(ret)
+        setData(ret)
+        index=+20
+        console.log(index)
+    }).fail(function (params) {
+        console.log('error...')
+    }).always(function () {
+        isLoading = false
+        $('.loading').hide()
+    })
+    }
+
+    //滚动条判定http://js.jirengu.com/hozon/1/edit?html
+    //http://js.jirengu.com/zonepomova/1/edit?html
+    var clock
+    $('main').scroll(function () {
+        if(clock){
+            clearTimeout(clock)
+        }
+        clock = setTimeout(function () {
+            if($('section').eq(0).height() -30 <= $('main').scrollTop() + $('main').height()){
+            start()
+        }
+        },1000)
+    })
+    var clock
+    $('main').scroll(function () {
+        if(clock){
+            clearTimeout(clock)
+        }
+        clock = setTimeout(function () {
+            if($('section').eq(0).height() -10 <= $('main').scrollTop() + $('main').height()){
+            start()
+        }
+        },1000)
+    })  
+    //创建节点防止XSS攻击
+    function setData(data) {
+        data.subjects.forEach(function (movie) {
+            var tpl = `<div class="item">
+                    <a href="#">
+                        <div class="cover">
+                            <img src="" alt="">   
+                        </div>
+                        <div class="detail">
+                            <h2></h2>
+                            <div class="extra"><span class="score"></span> / <span class="collection"></span>收藏</div>
+                            <div class="extra"><span class="year"></span> / <span class="type"></span></div>
+                            <div class="extra"><span class="director"></span></div>
+                            <div class="extra"><span class="actor"></span></div>
+                        </div> 
+                    </a>
+                </div>
+            </div>`
+            var $node = $(tpl)
+            $node.find('.cover img').attr('src',movie.images.medium)
+            $node.find('.detail h2').text(movie.title)
+            $node.find('.score').text(movie.rating.average)
+            $node.find('.collection').text(movie.collect_count)
+            $node.find('.year').text(movie.yaer)
+            $node.find('.type').text(movie.genres.join(' / '))
+            $node.find('.director').text(function () {
+                var directorsArr = []
+                movie.directors.forEach(function (item) {
+                    directorsArr.push(item.name)
+                })
+                return directorsArr.join('、')
+            })
+             $node.find('.actor').text(function () {
+                var actorArr = []
+                movie.casts.forEach(function (item) {
+                    actorArr.push(item.name)
+                })
+                return actorArr.join('、')
+            })
+            //$('section').eq(0).append($node)
+            $('.container').append($node)
+        })
+    }*/
+    var top250 ={
+        //初始化运行
+        init: function () {
+            this.$element = $('#top250')
+            this.isLoading = false
+            this.index = 0
+            this.isFinish = false
+
+            this.bind()
+            this.start()
+        },
+        //绑定事件
+        bind: function () {
+            var _this = this
+            this.$element.scroll(function () {
+                _this.start()
+            })
+        },
+        //开始
+        start: function () {
+            var _this = this
+            this.getData(function (data) {
+                _this.render(data)
+            })
+        },
+        getData: function (callback) {
+            var _this = this
+            if(_this.isLoading) return;
+            _this.isLoading = true
+            _this.$element.find('.loading').show()
+            $.ajax({
+                url: 'http://api.douban.com/v2/movie/top250',
+                data: {
+                start: _this.index||0
+                },
+                dataType: 'jsonp'                
+            }).done(function (ret) {
+                _this.index += 20
+                if(_this.index >= ret.total){
+                    _this.isFinish = true
+                }
+                callback&&callback(ret)
+            }).fail(function () {
+                console.log('error...');
+            }).always(function () {
+                _this.isLoading = false
+                _this.$element.find('.loading').hide()
+            })
+        },
+        render:function (data) {
+            var _this = this
+            //创建节点防止XSS攻击
+            data.subjects.forEach(function (movie) {
+                var tpl = `<div class="item">
+                    <a href="#">
+                        <div class="cover">
+                            <img src="" alt="">   
+                        </div>
+                        <div class="detail">
+                            <h2></h2>
+                            <div class="extra"><span class="score">分</span> / <span class="collection"></span>收藏</div>
+                            <div class="extra"><span class="year">年</span> / <span class="type"></span></div>
+                            <div class="extra">主演:<span class="director"></span></div>
+                            <div class="extra">导演:<span class="actor"></span></div>
+                        </div> 
+                    </a>
+                </div>
+            </div>`
+            var $node = $(tpl)
+            $node.find('.cover img').attr('src',movie.images.medium)
+            $node.find('.detail h2').text(movie.title)
+            $node.find('.score').text(movie.rating.average)
+            $node.find('.collection').text(movie.collect_count)
+            $node.find('.year').text(movie.year)
+            $node.find('.type').text(movie.genres.join(' / '))
+            $node.find('.director').text(function () {
+                var directorsArr = []
+                movie.directors.forEach(function (item) {
+                    directorsArr.push(item.name)
+                })
+                return directorsArr.join('、')
+            })
+             $node.find('.actor').text(function () {
+                var actorArr = []
+                movie.casts.forEach(function (item) {
+                    actorArr.push(item.name)
+                })
+                return actorArr.join('、')
+            })
+            //$('section').eq(0).append($node)
+            _this.$element.find('.container').append($node)
+        })   
+        },
+        isToBottom: function () {
+            return this.$element.find('.container') <= this.$element.height() + this.$element.scrollTop() + 10
+        }
+    }
+
+    var usBox = {
+        init: function () {
+            console.log('successfully load usBox')
+            this.$element = $('#beimei')
+            this.start()
+        },
+        start: function () {
+            var _this = this
+            this.getData(function (data) {
+                _this.render(data)
+            })
+        },
+        getData: function (callback) {
+            var _this = this
+            if(_this.isLoading) return;
+            _this.isLoading = true
+            _this.$element.find('.loading').show()
+            $.ajax({
+            url: 'http://api.douban.com/v2/movie/us_box',
+            dataType: 'jsonp'                
+            }).done(function (ret) {
+                callback&&callback(ret)
+            }).fail(function () {
+                console.log('eroor...')
+            }).always(function () {
+                _this.isLoading = false
+                _this.$element.find('.loading').hide()                
+            })
+        },
+        render: function (data) {
+            var _this = this
+            console.log(data)
+            //创建节点防止XSS攻击
+            data.subjects.forEach(function (movie) {
+                //由于该段在subjects下的subject,所以此处的movie要改写
+                //相当于data.subjects.subject
+                movie = movie.subject
+                var tpl = `<div class="item">
+                    <a href="#">
+                        <div class="cover">
+                            <img src="" alt="">   
+                        </div>
+                        <div class="detail">
+                            <h2></h2>
+                            <div class="extra"><span class="score">分</span> / <span class="collection"></span>收藏</div>
+                            <div class="extra"><span class="year">年</span> / <span class="type"></span></div>
+                            <div class="extra">主演:<span class="director"></span></div>
+                            <div class="extra">导演:<span class="actor"></span></div>
+                        </div> 
+                    </a>
+                </div>
+            </div>`
+            var $node = $(tpl)
+            $node.find('.cover img').attr('src',movie.images.medium)
+            $node.find('.detail h2').text(movie.title)
+            $node.find('.score').text(movie.rating.average)
+            $node.find('.collection').text(movie.collect_count)
+            $node.find('.year').text(movie.year)
+            $node.find('.type').text(movie.genres.join(' / '))
+            $node.find('.director').text(function () {
+                var directorsArr = []
+                movie.directors.forEach(function (item) {
+                    directorsArr.push(item.name)
+                })
+                return directorsArr.join('、')
+            })
+             $node.find('.actor').text(function () {
+                var actorArr = []
+                movie.casts.forEach(function (item) {
+                    actorArr.push(item.name)
+                })
+                return actorArr.join('、')
+            })
+            //$('section').eq(0).append($node)
+            _this.$element.find('.container').append($node)
+        })   
+        }  
+    }
+
+    var search = {
+        init: function () {
+            console.log('successfully load search')
+            this.$element = $('#search')
+            this.keyword = ''
+            this.bind()
+            this.start()
+        },
+        bind: function () {
+            var _this = this
+            this.$element.find('.button').on('click',function () {
+                _this.keyword = _this.$element.find('input').val()
+                _this.start()
+            })
+        },
+        start: function () {
+            var _this = this
+            this.getData(function (data) {
+                _this.render(data)
+            })
+        },
+        getData:function (callback) {
+            var _this = this
+            _this.$element.find('.loading').show()
+            $.ajax({
+                url: 'http://api.douban.com/v2/movie/search',
+                data: {
+                q: _this.keyword
+                },
+                dataType: 'jsonp'                
+            }).done(function (ret) {
+                callback&&callback(ret)
+            }).fail(function () {
+                console.log('error...')
+            }).always(function () {
+                _this.$element.find('.loading').hide()
+            })
+        },
+        render: function (data) {
+            var _this = this
+            console.log(data)
+            //创建节点防止XSS攻击
+            data.subjects.forEach(function (movie) {
+                var tpl = `<div class="item">
+                    <a href="#">
+                        <div class="cover">
+                            <img src="" alt="">   
+                        </div>
+                        <div class="detail">
+                            <h2></h2>
+                            <div class="extra"><span class="score">分</span> / <span class="collection"></span>收藏</div>
+                            <div class="extra"><span class="year">年</span> / <span class="type"></span></div>
+                            <div class="extra"><span class="director">导演:</span></div>
+                            <div class="extra"><span class="actor">主演:</span></div>
+                        </div> 
+                    </a>
+                </div>
+            </div>`
+            var $node = $(tpl)
+            $node.find('.cover img').attr('src',movie.images.medium)
+            $node.find('.detail h2').text(movie.title)
+            $node.find('.score').text(movie.rating.average)
+            $node.find('.collection').text(movie.collect_count)
+            $node.find('.year').text(movie.year)
+            $node.find('.type').text(movie.genres.join(' / '))
+            $node.find('.director').text(function () {
+                var directorsArr = []
+                movie.directors.forEach(function (item) {
+                    directorsArr.push(item.name)
+                })
+                return directorsArr.join('、')
+            })
+             $node.find('.actor').text(function () {
+                var actorArr = []
+                movie.casts.forEach(function (item) {
+                    actorArr.push(item.name)
+                })
+                return actorArr.join('、')
+            })
+            //$('section').eq(0).append($node)
+            _this.$element.find('.search-result').append($node)
+        })   
+        }
+    }
+
+    var App = {
+        init: function () {
+            this.$tabs = $('footer>div')
+            this.$panels = $('section')
+            this.bind()
+            top250.init()
+            usBox.init()
+            search.init()
+        },
+        bind: function () {
+            var _this = this
+            this.$tabs.on('click',function () {
+                $(this).addClass('active').siblings().removeClass('active')
+                _this.$panels.eq($(this).index()).fadeIn().siblings().hide()
+            })
+        }
+    }
+    App.init()
+    </script>
+</body>
+</html>

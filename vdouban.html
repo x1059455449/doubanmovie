@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_440195_fw8hsnrso53wstt9.css">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <!-- 如果效果中图片展示不出来，可在 html 添加 meta -->
+    <meta name="referrer" content="never">
+    <title>vediotest</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    a {
+        text-decoration: none;
+    }
+    html,body {
+        height: 100%;
+    }
+    body {
+        position: relative;
+        font-size: 12px;
+        line-height: 1.2;
+        background-color: #fff;
+    }
+    main {
+        height: calc(100vh - 50px);
+        /* background: blue;
+        overflow: scroll; */
+        /*增加弹性*/
+        -webkit-overflow-scrolling: touch;
+    }
+    main>section {
+        display: none;
+    }
+    main>section:first-child {
+        display: block;
+    }
+    .item {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+      padding-top: 10px;
+    }
+    .item>a{
+      display: block;
+      display: flex;
+    }
+    .item .cover,
+    .item .cover img{
+      width: 70px;
+    }
+    .item .detail {
+      flex: 1;
+      padding-left: 10px;
+    }
+    .item .detail h2{
+      font-size: 16px;
+    }
+    .item .detail .extra{
+      color: #999;
+      margin-top: 4px;
+    }
+    .item .detail .score{
+      color: #FF5722;
+    }
+    .loading {
+        padding-top: 10px;
+        text-align: center;
+        display: none;
+    }
+    @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+    
+            100% {
+                transform: rotate(360deg);
+            }
+        } 
+    .loading .iconfont {
+        /*设置为block，会大幅度旋转*/
+        display: inline-block;
+        animation: 1s rotate linear infinite;
+    }           
+    footer {
+        /* position: absolute; */
+        position: fixed;
+        background: yellowgreen;
+        height: 50px;
+        width: 100%;
+        border-top: 1px solid #ccc;
+        display: flex;
+        bottom: 0;
+    }
+    footer>div {
+        flex: 1;
+        text-align: center;
+    }
+    footer .active {
+        color: #ff5722;
+    }
+    footer>div>span {
+        display: block;
+        padding-top: 5px;
+    }
+
+
+    </style>
+</head>
+<body>
+    <main>
+        <section class="top250">
+        <div class="container">
+            <!-- <div class="item">
+                <a href="#">
+                    <div class="cover">
+                        <img src="http://img7.doubanio.com/view/movie_poster_cover/spst/public/p513344864.png" alt="">
+                    </div>
+                    <div class="detail">
+                        <h2>霸王别姬</h2>
+                        <div class="extra"><span class="score">9.3分</span>/1000收藏</div>
+                        <div class="extra">1994 / 剧情、爱情</div>
+                        <div class="extra">导演: 张艺谋</div>
+                        <div class="extra">主演: 张艺谋、张艺谋、张艺谋</div>
+                    </div>
+                </a>
+                </div> -->
+            </div>
+            <div class="loading"><span class="iconfont icon-loading"></span></div>
+        </section>
+        <section>2</section>
+        <section>3</section>
+    </main>
+    <footer>
+        <div class="active"><span class="iconfont icon-paihang"></span><span>top250</span></div>
+        <div><span class="iconfont icon-beimei"></span><span>beimei</span></div>
+        <div><span class="iconfont icon-search"></span><span>sousuo</span></div>
+    </footer>
+    <script>
+    $('footer>div').click(function () {
+        //先获取index的值,再让对应的index的值展现出来
+        var index = $(this).index()
+        //$('section').eq(index).show().siblings().hide()
+        $('section').hide().eq(index).fadeIn()
+        $(this).addClass('active').siblings().removeClass('active')
+    })
+
+    var index = 0
+    var isLoading = false
+
+    start()
+    function start() {
+        if(isLoading) return //后续不再进行
+        isLoading = true
+        $('.loading').show()
+        $.ajax({
+        //注意要加http://api.douban.com，因为要在豆瓣的域下获取，不然会跨域报错
+        //&callback=abc是存在的,则说明支持jsonp格式
+        url: 'http://api.douban.com/v2/movie/top250',
+        type: 'GET',
+        data: {
+            start: index,
+            count: 20
+        },
+        dataType: 'jsonp'
+    }).done(function (ret) {
+        console.log(ret)
+        setData(ret)
+        index=+20
+        console.log(index)
+    }).fail(function (params) {
+        console.log('error...')
+    }).always(function () {
+        isLoading = false
+        $('.loading').hide()
+    })
+    }
+
+    //滚动条判定http://js.jirengu.com/hozon/1/edit?html
+    //http://js.jirengu.com/zonepomova/1/edit?html
+    var clock
+    $('main').scroll(function () {
+        if(clock){
+            clearTimeout(clock)
+        }
+        clock = setTimeout(function () {
+            if($('section').eq(0).height() -30 <= $('main').scrollTop() + $('main').height()){
+            start()
+        }
+        },1000)
+    })
+    var clock
+    $('main').scroll(function () {
+        if(clock){
+            clearTimeout(clock)
+        }
+        clock = setTimeout(function () {
+            if($('section').eq(0).height() -10 <= $('main').scrollTop() + $('main').height()){
+            start()
+        }
+        },1000)
+    })  
+    //创建节点防止XSS攻击
+    function setData(data) {
+        data.subjects.forEach(function (movie) {
+            var tpl = `<div class="item">
+                    <a href="#">
+                        <div class="cover">
+                            <img src="" alt="">   
+                        </div>
+                        <div class="detail">
+                            <h2></h2>
+                            <div class="extra"><span class="score"></span> / <span class="collection"></span>收藏</div>
+                            <div class="extra"><span class="year"></span> / <span class="type"></span></div>
+                            <div class="extra"><span class="director"></span></div>
+                            <div class="extra"><span class="actor"></span></div>
+                        </div> 
+                    </a>
+                </div>
+            </div>`
+            var $node = $(tpl)
+            $node.find('.cover img').attr('src',movie.images.medium)
+            $node.find('.detail h2').text(movie.title)
+            $node.find('.score').text(movie.rating.average)
+            $node.find('.collection').text(movie.collect_count)
+            $node.find('.year').text(movie.yaer)
+            $node.find('.type').text(movie.genres.join(' / '))
+            $node.find('.director').text(function () {
+                var directorsArr = []
+                movie.directors.forEach(function (item) {
+                    directorsArr.push(item.name)
+                })
+                return directorsArr.join('、')
+            })
+             $node.find('.actor').text(function () {
+                var actorArr = []
+                movie.casts.forEach(function (item) {
+                    actorArr.push(item.name)
+                })
+                return actorArr.join('、')
+            })
+            //$('section').eq(0).append($node)
+            $('.container').append($node)
+        })
+    }
+    
+    
+    </script>
+</body>
+</html>
